@@ -9,15 +9,15 @@ ENV HOME /root
 CMD apt-get install -y nginx
 
 # === 2 ===
-# Start Nginx / Passenger
-RUN service nginx start
-
-# === 3 ===
 # Remove the default site
-RUN rm /etc/nginx/sites-enabled/default
+CMD rm /etc/nginx/sites-enabled/default
 
 # Add the nginx info
 ADD config/nginx/etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/default
+
+# === 3 ===
+# Start Nginx / Passenger
+CMD service nginx start
 
 # === 4 ===
 # Load puma config files
@@ -33,7 +33,7 @@ RUN mkdir /root/webapp
 WORKDIR /tmp
 ADD Gemfile /tmp/
 ADD Gemfile.lock /tmp/
-RUN bundle install
+CMD bundle install
 
 # === 7 ===
 # Add the rails app
@@ -41,7 +41,7 @@ ADD . /root/webapp
 
 # === 8 ===
 # Start rails app
-# restart puma-manager
+CMD restart puma-manager
 
 # Clean up APT when done.
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+CMD apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
