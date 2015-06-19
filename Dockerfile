@@ -21,8 +21,8 @@ CMD service nginx start
 
 # === 4 ===
 # Load puma config files
-ADD config/puma/etc/init/* /etc/init
-ADD config/puma/etc/* /etc
+ADD config/puma/etc/init/* /etc/init/
+ADD config/puma/etc/* /etc/
 
 # === 5 ===
 # Prepare folders
