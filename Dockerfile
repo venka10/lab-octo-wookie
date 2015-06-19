@@ -1,51 +1,30 @@
-# === 1 ===
-# Setup
 FROM ruby:2.0
 MAINTAINER Venka Ashtakala "vashtakala@barquin.com"
 
-# Set correct environment variables.
+EXPOSE 80
+
+# Environment variables.
 ENV HOME /root
 
-CMD ["apt-get update"]
 
-CMD ["apt-get install -y nginx"]
+#Package installations
+RUN apt-get update -y
 
-CMD ["apt-get install -y upstart"]
+#Rails application setup
+RUN mkdir /root/webapp
+ADD . /root/webapp
+WORKDIR /root/webapp
+RUN bundle install
+RUN cd `bundle show passenger` \
+    && bin/passenger-install-nginx-module
 
-# === 2 ===
-# Remove the default site
-CMD rm /etc/nginx/sites-available/default
-
-# Add the nginx info
+# Setup NGINX configuration
+RUN rm /etc/nginx/sites-available/default
 ADD config/nginx/etc/nginx/sites-available/default /etc/nginx/sites-available/default
 
-# === 3 ===
 # Start Nginx / Passenger
-CMD service nginx start
-
-# === 4 ===
-# Load puma config files
-ADD config/puma/etc/init/* /etc/init/
-ADD config/puma/etc/puma.conf /etc/puma.conf
-
-# === 5 ===
-# Prepare folders
-RUN mkdir /root/webapp
-
-# === 6 ===
-# Run Bundle in a cache efficient way
-WORKDIR /tmp
-ADD Gemfile /tmp/
-ADD Gemfile.lock /tmp/
-RUN bundle install
-
-# === 7 ===
-# Add the rails app
-ADD . /root/webapp
-
-# === 8 ===
-# Start rails app
-CMD restart puma-manager
+RUN rm -f /etc/service/nginx/down
+RUN service nginx start
 
 # Clean up APT when done.
 CMD apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

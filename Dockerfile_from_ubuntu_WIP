@@ -1,0 +1,99 @@
+# === 1 ===
+# Setup
+#FROM ruby:2.0
+FROM ubuntu:14.04
+MAINTAINER Venka Ashtakala "vashtakala@barquin.com"
+
+# Set correct environment variables.
+ENV HOME /root
+ENV RUBY_MAJOR 2.0
+ENV RUBY_VERSION 2.0.0-p645
+ENV RUBY_DOWNLOAD_SHA256 5e9f8effffe97cba5ef0015feec6e1e5f3bacf6ace78cd1cdf72708cd71cf4ab
+ENV DEBIAN_FRONTEND=noninteractive
+
+#Remove any trace of ruby first
+RUN rm -rf /usr/local/lib/ruby \
+&& rm -rf /usr/lib/ruby \
+&& rm -f /usr/local/bin/ruby \
+&& rm -f /usr/bin/ruby \
+&& rm -f /usr/local/bin/irb \
+&& rm -f /usr/bin/irb \
+&& rm -f /usr/local/bin/gem \
+&& rm -f /usr/bin/gem
+
+# some of ruby's build scripts are written in ruby
+# we purge this later to make sure our final image uses what we just built
+RUN apt-get update -y \
+        && apt-get install -y zlib1g zlib1g-dev build-essential openssl libssl-dev libmysqlclient18 libmysqlclient-dev libyaml-dev curl git-core python-software-properties libpq-dev nodejs \
+        && apt-get install -y make autoconf nginx upstart curl \
+	&& apt-get install -y bison libgdbm-dev ruby \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& mkdir -p /usr/src/ruby \
+	&& curl -fSL -o ruby.tar.gz "http://cache.ruby-lang.org/pub/ruby/$RUBY_MAJOR/ruby-$RUBY_VERSION.tar.gz" \
+	&& echo "$RUBY_DOWNLOAD_SHA256 *ruby.tar.gz" | sha256sum -c - \
+	&& tar -xzf ruby.tar.gz -C /usr/src/ruby --strip-components=1 \
+	&& rm ruby.tar.gz \
+	&& cd /usr/src/ruby \
+	&& autoconf \
+	&& ./configure --disable-install-doc \
+	&& make -j"$(nproc)" \
+	&& make install \
+	&& apt-get purge -y --auto-remove bison libgdbm-dev ruby \
+	&& rm -r /usr/src/ruby
+
+# skip installing gem documentation
+RUN echo 'gem: --no-rdoc --no-ri' >> "$HOME/.gemrc"
+
+# install things globally, for great justice
+ENV GEM_HOME /usr/local/bundle
+ENV PATH $GEM_HOME/bin:$PATH
+
+ENV BUNDLER_VERSION 1.10.4
+
+RUN gem install bundler --version "$BUNDLER_VERSION" \
+	&& bundle config --global path "$GEM_HOME" \
+	&& bundle config --global bin "$GEM_HOME/bin"
+
+# don't create ".bundle" in all our apps
+ENV BUNDLE_APP_CONFIG $GEM_HOME
+
+CMD [ "irb" ]
+
+
+# === 2 ===
+# Remove the default site
+CMD rm /etc/nginx/sites-available/default
+
+# Add the nginx info
+ADD config/nginx/etc/nginx/sites-available/default /etc/nginx/sites-available/default
+
+# === 3 ===
+# Start Nginx / Passenger
+CMD service nginx start
+
+# === 4 ===
+# Load puma config files
+ADD config/puma/etc/init/* /etc/init/
+ADD config/puma/etc/puma.conf /etc/puma.conf
+
+# === 5 ===
+# Prepare folders
+RUN mkdir /root/webapp
+
+# === 6 ===
+# Run Bundle in a cache efficient way
+WORKDIR /tmp
+ADD Gemfile /tmp/
+ADD Gemfile.lock /tmp/
+RUN bundle install
+
+# === 7 ===
+# Add the rails app
+ADD . /root/webapp
+
+# === 8 ===
+# Start rails app
+CMD restart puma-manager
+
+# Clean up APT when done.
+CMD apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
