@@ -10,6 +10,8 @@ CMD ["apt-get update"]
 
 CMD ["apt-get install -y nginx"]
 
+CMD ["apt-get install -y upstart"]
+
 # === 2 ===
 # Remove the default site
 CMD rm /etc/nginx/sites-available/default
