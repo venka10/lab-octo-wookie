@@ -10,10 +10,10 @@ CMD apt-get install -y nginx
 
 # === 2 ===
 # Remove the default site
-CMD rm /etc/nginx/sites-enabled/default
+CMD rm /etc/nginx/sites-available/default
 
 # Add the nginx info
-ADD config/nginx/etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/default
+ADD config/nginx/etc/nginx/sites-available/default /etc/nginx/sites-available/default
 
 # === 3 ===
 # Start Nginx / Passenger
