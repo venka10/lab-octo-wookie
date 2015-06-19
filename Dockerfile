@@ -6,7 +6,7 @@ MAINTAINER Venka Ashtakala "vashtakala@barquin.com"
 # Set correct environment variables.
 ENV HOME /root
 
-RUN apt-get install -y nginx
+CMD apt-get install -y nginx
 
 # === 2 ===
 # Start Nginx / Passenger
