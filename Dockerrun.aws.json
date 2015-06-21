@@ -1,0 +1,23 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  //"Authentication": {
+  //  "Bucket": "barquin-18f",
+  //  "Key": "dockercfg"
+  //},
+  "Image": {
+    "Name": "venka10/octo-wookie",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": "80"
+    }
+  ],
+  "Volumes": [
+    {
+      "HostDirectory": "/var/app/mydb",
+      "ContainerDirectory": "/etc/mysql"
+    }
+  ],
+  "Logging": "/var/log/nginx"
+}
