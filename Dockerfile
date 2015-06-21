@@ -1,4 +1,4 @@
-FROM venka10/ruby2.0_nginx_passenger:all_running_as_root 
+FROM barquin/ruby2.0_nginx_passenger_node:all_under_root 
 MAINTAINER Venka Ashtakala "vashtakala@barquin.com"
 
 EXPOSE 80
