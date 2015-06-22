@@ -2,7 +2,7 @@ FROM barquin/ruby2.0_nginx_passenger_node:all_under_root
 MAINTAINER Venka Ashtakala "vashtakala@barquin.com"
 
 EXPOSE 80
-EXPOSE 3000
+#EXPOSE 3000
 
 # Environment variables.
 ENV HOME /root
@@ -19,7 +19,6 @@ RUN ./setup.sh
 
 # Start Nginx / Passenger
 RUN rm -f /etc/service/nginx/down
-#RUN service nginx start
-RUN passenger start
+CMD ["service","nginx","start"]
 
 
