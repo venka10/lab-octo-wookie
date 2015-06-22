@@ -1,9 +1,5 @@
 {
   "AWSEBDockerrunVersion": "1",
-  //"Authentication": {
-  //  "Bucket": "barquin-18f",
-  //  "Key": "dockercfg"
-  //},
   "Image": {
     "Name": "venka10/octo-wookie",
     "Update": "true"
