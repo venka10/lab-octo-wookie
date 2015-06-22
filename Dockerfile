@@ -19,5 +19,7 @@ RUN ./setup.sh
 
 # Start Nginx / Passenger
 RUN rm -f /etc/service/nginx/down
-RUN service nginx start
+#RUN service nginx start
+RUN passenger start
+
 
