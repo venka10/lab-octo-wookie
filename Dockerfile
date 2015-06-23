@@ -1,4 +1,4 @@
-FROM barquin/ruby2.0_nginx_passenger_node:all_under_root 
+FROM barquin/docker:ruby2_passenger_node_nginx 
 MAINTAINER Venka Ashtakala "vashtakala@barquin.com"
 
 EXPOSE 80
