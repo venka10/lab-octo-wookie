@@ -17,6 +17,6 @@ RUN ./setup.sh
 
 # Start Nginx / Passenger
 RUN rm -f /etc/service/nginx/down
-CMD ["service","nginx","start"]
+CMD ["service","nginx","start"] && ["tail","-f","/opt/nginx/logs/errors.log"]
 
 
